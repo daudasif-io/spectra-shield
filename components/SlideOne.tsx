@@ -10,9 +10,10 @@ interface SlideProps {
   onPrev: () => void;
   onShake: () => void;
   accent: string;
+  isMobile: boolean;
 }
 
-export default function SlideOne({ onNext, onPrev, onShake, accent }: SlideProps) {
+export default function SlideOne({ onNext, onPrev, onShake, accent, isMobile }: SlideProps) {
   const titleRef = useRef<HTMLHeadingElement>(null);
   const textRef = useRef<HTMLParagraphElement>(null);
   const btnRef = useRef<HTMLDivElement>(null);
@@ -32,61 +33,52 @@ export default function SlideOne({ onNext, onPrev, onShake, accent }: SlideProps
         position: "absolute",
         top: 0, left: 0, right: 0, bottom: 0,
         display: "flex",
-        alignItems: "center",
-        justifyContent: "flex-end",
-        paddingRight: "8rem",
-        paddingLeft: "2rem",
+        alignItems: isMobile ? "flex-end" : "center",
+        justifyContent: isMobile ? "center" : "flex-end",
+        paddingRight: isMobile ? "20px" : "8rem",
+        paddingLeft: isMobile ? "20px" : "2rem",
+        paddingBottom: isMobile ? "140px" : "0",
         zIndex: 10,
       }}
     >
-      <div style={{ maxWidth: "420px", width: "100%" }}>
+      <div style={{ maxWidth: isMobile ? "100%" : "420px", width: "100%" }}>
         <h1
           ref={titleRef}
           style={{
             fontFamily: "'Rajdhani', sans-serif",
             fontWeight: 300,
-            fontSize: "clamp(64px, 7vw, 100px)",
+            fontSize: isMobile ? "clamp(42px, 12vw, 64px)" : "clamp(64px, 7vw, 100px)",
             letterSpacing: "0.25em",
             lineHeight: 1,
             color: "#ffffff",
-            marginBottom: "24px",
+            marginBottom: isMobile ? "16px" : "24px",
             opacity: 0,
-            whiteSpace: "nowrap",
+            whiteSpace: isMobile ? "normal" : "nowrap",
           }}
         >
           PROTECT
         </h1>
-
         <p
           ref={textRef}
           style={{
             fontFamily: "'Inter', sans-serif",
             fontWeight: 300,
-            fontSize: "13px",
+            fontSize: isMobile ? "12px" : "13px",
             lineHeight: "1.9",
             color: "rgba(200,205,212,0.8)",
-            marginBottom: "40px",
+            marginBottom: isMobile ? "28px" : "40px",
             opacity: 0,
           }}
         >
-          Locating gamma radiation sources in nonaccessible areas is
-          challenging, and a major safety concern. Thanks to NanoPix, this
-          miniature gamma camera can squeeze itself into tiny spaces making
-          the invisible visible.
+          Locating gamma radiation sources in nonaccessible areas is challenging, and a major safety concern. Thanks to NanoPix, this miniature gamma camera can squeeze itself into tiny spaces making the invisible visible.
         </p>
-
-        <div
-          ref={btnRef}
-          style={{ display: "flex", alignItems: "center", gap: "32px", opacity: 0 }}
-        >
+        <div ref={btnRef} style={{ display: "flex", alignItems: "center", gap: isMobile ? "12px" : "16px", opacity: 0, flexWrap: "wrap" }}>
           <HoldButton onComplete={() => setTimeout(onNext, 800)} onShake={onShake} accent={accent} />
-
           <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            whileTap={{ scale: 0.97 }}
             onClick={onNext}
             style={{
-              padding: "14px 32px",
+              padding: isMobile ? "12px 24px" : "14px 32px",
               background: "#ffffff",
               color: "#0A0C0F",
               fontFamily: "'Rajdhani', sans-serif",
@@ -95,11 +87,11 @@ export default function SlideOne({ onNext, onPrev, onShake, accent }: SlideProps
               letterSpacing: "0.22em",
               textTransform: "uppercase",
               border: "none",
-              cursor: "none",
+              cursor: isMobile ? "pointer" : "none",
               transition: "background 0.3s ease",
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = accent)}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "#ffffff")}
+            onMouseEnter={(e) => !isMobile && (e.currentTarget.style.background = accent)}
+            onMouseLeave={(e) => !isMobile && (e.currentTarget.style.background = "#ffffff")}
           >
             Enter
           </motion.button>

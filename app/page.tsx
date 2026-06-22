@@ -16,6 +16,7 @@ const ACCENT = ["#F5C800", "#3A7BD5", "#00E87A", "#A855F7", "#FF6B35", "#00D4FF"
 
 export default function Home() {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
   const cursorRef = useRef<HTMLDivElement>(null);
   const followerRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLDivElement>(null);
@@ -27,6 +28,15 @@ export default function Home() {
   const accent = ACCENT[currentSlide] ?? ACCENT[0];
 
   useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  useEffect(() => {
+    if (isMobile) return;
+
     const onMove = (e: MouseEvent) => {
       mousePos.current = { x: e.clientX, y: e.clientY };
       if (cursorRef.current) {
@@ -52,7 +62,7 @@ export default function Home() {
       window.removeEventListener("mousemove", onMove);
       cancelAnimationFrame(rafRef.current);
     };
-  }, []);
+  }, [isMobile]);
 
   useEffect(() => {
     if (cursorRef.current) cursorRef.current.style.background = accent;
@@ -76,12 +86,12 @@ export default function Home() {
   const goToPrev = () => setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides);
 
   const slides = [
-    <SlideOne   key="s1" onNext={goToNext} onPrev={goToPrev} accent={accent} onShake={shakeScreen} />,
-    <SlideTwo   key="s2" onNext={goToNext} onPrev={goToPrev} accent={accent} onShake={shakeScreen} />,
-    <SlideThree key="s3" onNext={goToNext} onPrev={goToPrev} accent={accent} onShake={shakeScreen} />,
-    <SlideFour  key="s4" onNext={goToNext} onPrev={goToPrev} accent={accent} onShake={shakeScreen} />,
-    <SlideFive  key="s5" onNext={goToNext} onPrev={goToPrev} accent={accent} onShake={shakeScreen} />,
-    <SlideSix   key="s6" onNext={goToNext} onPrev={goToPrev} accent={accent} onShake={shakeScreen} />,
+    <SlideOne   key="s1" onNext={goToNext} onPrev={goToPrev} accent={accent} onShake={shakeScreen} isMobile={isMobile} />,
+    <SlideTwo   key="s2" onNext={goToNext} onPrev={goToPrev} accent={accent} onShake={shakeScreen} isMobile={isMobile} />,
+    <SlideThree key="s3" onNext={goToNext} onPrev={goToPrev} accent={accent} onShake={shakeScreen} isMobile={isMobile} />,
+    <SlideFour  key="s4" onNext={goToNext} onPrev={goToPrev} accent={accent} onShake={shakeScreen} isMobile={isMobile} />,
+    <SlideFive  key="s5" onNext={goToNext} onPrev={goToPrev} accent={accent} onShake={shakeScreen} isMobile={isMobile} />,
+    <SlideSix   key="s6" onNext={goToNext} onPrev={goToPrev} accent={accent} onShake={shakeScreen} isMobile={isMobile} />,
   ];
 
   return (
@@ -95,41 +105,43 @@ export default function Home() {
         background: "#0A0C0F",
       }}
     >
-      {/* Dot cursor */}
-      <div
-        ref={cursorRef}
-        style={{
-          width: "10px",
-          height: "10px",
-          borderRadius: "50%",
-          background: accent,
-          position: "fixed",
-          pointerEvents: "none",
-          zIndex: 9999,
-          transform: "translate(-50%, -50%)",
-          top: 0,
-          left: 0,
-          transition: "background 0.5s ease",
-        }}
-      />
-
-      {/* Ring follower */}
-      <div
-        ref={followerRef}
-        style={{
-          width: "38px",
-          height: "38px",
-          borderRadius: "50%",
-          border: `1px solid ${accent}70`,
-          position: "fixed",
-          pointerEvents: "none",
-          zIndex: 9998,
-          transform: "translate(-50%, -50%)",
-          top: 0,
-          left: 0,
-          transition: "border-color 0.5s ease",
-        }}
-      />
+      {/* Custom cursor — desktop only */}
+      {!isMobile && (
+        <>
+          <div
+            ref={cursorRef}
+            style={{
+              width: "10px",
+              height: "10px",
+              borderRadius: "50%",
+              background: accent,
+              position: "fixed",
+              pointerEvents: "none",
+              zIndex: 9999,
+              transform: "translate(-50%, -50%)",
+              top: 0,
+              left: 0,
+              transition: "background 0.5s ease",
+            }}
+          />
+          <div
+            ref={followerRef}
+            style={{
+              width: "38px",
+              height: "38px",
+              borderRadius: "50%",
+              border: `1px solid ${accent}70`,
+              position: "fixed",
+              pointerEvents: "none",
+              zIndex: 9998,
+              transform: "translate(-50%, -50%)",
+              top: 0,
+              left: 0,
+              transition: "border-color 0.5s ease",
+            }}
+          />
+        </>
+      )}
 
       {/* 3D Scene */}
       <div style={{ position: "absolute", inset: 0, zIndex: 0 }}>
@@ -137,7 +149,7 @@ export default function Home() {
       </div>
 
       {/* Navbar */}
-      <Navbar currentSlide={currentSlide} totalSlides={totalSlides} accent={accent} />
+      <Navbar currentSlide={currentSlide} totalSlides={totalSlides} accent={accent} isMobile={isMobile} />
 
       {/* Slide content */}
       <AnimatePresence mode="wait">
@@ -153,77 +165,153 @@ export default function Home() {
         </motion.div>
       </AnimatePresence>
 
-      {/* Prev button */}
-      <div
-        style={{
-          position: "fixed",
-          right: "calc(8rem + 440px)",
-          top: "50%",
-          marginTop: "-26px",
-          zIndex: 9990,
-        }}
-      >
-        <button
-          onClick={goToPrev}
+      {/* Prev button — desktop only */}
+      {!isMobile && (
+        <div
           style={{
-            width: "52px",
-            height: "52px",
-            borderRadius: "50%",
-            border: "1.5px solid rgba(255,255,255,0.75)",
-            background: "rgba(0,0,0,0.35)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            cursor: "none",
-            transition: "border-color 0.3s ease, background 0.3s ease",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.borderColor = accent;
-            e.currentTarget.style.background = "rgba(0,0,0,0.55)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.borderColor = "rgba(255,255,255,0.75)";
-            e.currentTarget.style.background = "rgba(0,0,0,0.35)";
+            position: "fixed",
+            right: "calc(8rem + 440px)",
+            top: "50%",
+            marginTop: "-26px",
+            zIndex: 9990,
           }}
         >
-          <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
-            <path d="M16 10H4M8 5L3 10l5 5" stroke="rgba(255,255,255,0.9)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </button>
-      </div>
+          <button
+            onClick={goToPrev}
+            style={{
+              width: "52px",
+              height: "52px",
+              borderRadius: "50%",
+              border: "1.5px solid rgba(255,255,255,0.75)",
+              background: "rgba(0,0,0,0.35)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "none",
+              transition: "border-color 0.3s ease, background 0.3s ease",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = accent;
+              e.currentTarget.style.background = "rgba(0,0,0,0.55)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = "rgba(255,255,255,0.75)";
+              e.currentTarget.style.background = "rgba(0,0,0,0.35)";
+            }}
+          >
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+              <path d="M16 10H4M8 5L3 10l5 5" stroke="rgba(255,255,255,0.9)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+        </div>
+      )}
 
-      {/* Next button */}
-      <div
-        style={{
-          position: "fixed",
-          right: "calc(8rem - 68px)",
-          top: "50%",
-          marginTop: "-26px",
-          zIndex: 9990,
-        }}
-      >
-        <button
-          onClick={goToNext}
+      {/* Next button — desktop only */}
+      {!isMobile && (
+        <div
           style={{
-            width: "52px",
-            height: "52px",
-            borderRadius: "50%",
-            border: "1.5px solid rgba(255,255,255,0.75)",
-            background: "transparent",
+            position: "fixed",
+            right: "calc(8rem - 68px)",
+            top: "50%",
+            marginTop: "-26px",
+            zIndex: 9990,
+          }}
+        >
+          <button
+            onClick={goToNext}
+            style={{
+              width: "52px",
+              height: "52px",
+              borderRadius: "50%",
+              border: "1.5px solid rgba(255,255,255,0.75)",
+              background: "transparent",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "none",
+              transition: "border-color 0.3s ease",
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.borderColor = accent; }}
+            onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.75)"; }}
+          >
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+              <path d="M4 10h12M12 5l5 5-5 5" stroke="rgba(255,255,255,0.9)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+        </div>
+      )}
+
+      {/* Mobile swipe nav buttons — bottom center */}
+      {isMobile && (
+        <div
+          style={{
+            position: "fixed",
+            bottom: "80px",
+            left: "50%",
+            transform: "translateX(-50%)",
+            zIndex: 9990,
             display: "flex",
             alignItems: "center",
-            justifyContent: "center",
-            cursor: "none",
-            transition: "border-color 0.3s ease",
+            gap: "24px",
           }}
-          onMouseEnter={(e) => { e.currentTarget.style.borderColor = accent; }}
-          onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.75)"; }}
         >
-          <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
-            <path d="M4 10h12M12 5l5 5-5 5" stroke="rgba(255,255,255,0.9)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </button>
-      </div>
+          <button
+            onClick={goToPrev}
+            style={{
+              width: "48px",
+              height: "48px",
+              borderRadius: "50%",
+              border: `1.5px solid ${accent}`,
+              background: "rgba(0,0,0,0.5)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+              <path d="M16 10H4M8 5L3 10l5 5" stroke="rgba(255,255,255,0.9)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+
+          {/* Slide dots */}
+          <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+            {Array.from({ length: totalSlides }).map((_, i) => (
+              <div
+                key={i}
+                onClick={() => setCurrentSlide(i)}
+                style={{
+                  width: i === currentSlide ? "20px" : "6px",
+                  height: "6px",
+                  borderRadius: "3px",
+                  background: i === currentSlide ? accent : "rgba(200,205,212,0.3)",
+                  transition: "all 0.3s ease",
+                  cursor: "pointer",
+                }}
+              />
+            ))}
+          </div>
+
+          <button
+            onClick={goToNext}
+            style={{
+              width: "48px",
+              height: "48px",
+              borderRadius: "50%",
+              border: `1.5px solid ${accent}`,
+              background: "rgba(0,0,0,0.5)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+              <path d="M4 10h12M12 5l5 5-5 5" stroke="rgba(255,255,255,0.9)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+        </div>
+      )}
     </main>
   );
 }

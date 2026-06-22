@@ -19,7 +19,12 @@ html, body {
   cursor: none;
 }
 
-/* Scanlines */
+@media (max-width: 768px) {
+  html, body {
+    cursor: auto;
+  }
+}
+
 body::after {
   content: '';
   position: fixed;
@@ -35,7 +40,6 @@ body::after {
   z-index: 9000;
 }
 
-/* Vignette */
 body::before {
   content: '';
   position: fixed;
