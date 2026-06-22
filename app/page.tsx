@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import dynamic from "next/dynamic";
 import gsap from "gsap";
 import Navbar from "@/components/Navbar";
 import SlideOne from "@/components/SlideOne";
@@ -10,13 +11,13 @@ import SlideThree from "@/components/SlideThree";
 import SlideFour from "@/components/SlideFour";
 import SlideFive from "@/components/SlideFive";
 import SlideSix from "@/components/SlideSix";
-import dynamic from "next/dynamic";
 
+// Dynamic import OUTSIDE component — never recreated on render
+const Scene3D = dynamic(() => import("@/components/Scene3D"), { ssr: false });
 
 const ACCENT = ["#F5C800", "#3A7BD5", "#00E87A", "#A855F7", "#FF6B35", "#00D4FF"] as const;
 
 export default function Home() {
-  const Scene3D = dynamic(() => import("@/components/Scene3D"), { ssr: false });
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
   const cursorRef = useRef<HTMLDivElement>(null);
@@ -145,15 +146,20 @@ export default function Home() {
         </>
       )}
 
-      {/* 3D Scene */}
+      {/* 3D Scene — always mounted outside AnimatePresence, never remounts */}
       <div style={{ position: "absolute", inset: 0, zIndex: 0 }}>
         <Scene3D currentSlide={currentSlide} />
       </div>
 
-      {/* Navbar */}
-      <Navbar currentSlide={currentSlide} totalSlides={totalSlides} accent={accent} isMobile={isMobile} />
+      {/* Navbar — always mounted */}
+      <Navbar
+        currentSlide={currentSlide}
+        totalSlides={totalSlides}
+        accent={accent}
+        isMobile={isMobile}
+      />
 
-      {/* Slide content */}
+      {/* Only slide text content transitions */}
       <AnimatePresence mode="wait">
         <motion.div
           key={currentSlide}
@@ -243,7 +249,7 @@ export default function Home() {
         </div>
       )}
 
-      {/* Mobile swipe nav buttons — bottom center */}
+      {/* Mobile nav — bottom center */}
       {isMobile && (
         <div
           style={{
@@ -276,7 +282,6 @@ export default function Home() {
             </svg>
           </button>
 
-          {/* Slide dots */}
           <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
             {Array.from({ length: totalSlides }).map((_, i) => (
               <div
