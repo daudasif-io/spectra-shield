@@ -10,11 +10,13 @@ import SlideThree from "@/components/SlideThree";
 import SlideFour from "@/components/SlideFour";
 import SlideFive from "@/components/SlideFive";
 import SlideSix from "@/components/SlideSix";
-import Scene3D from "@/components/Scene3D";
+import dynamic from "next/dynamic";
+
 
 const ACCENT = ["#F5C800", "#3A7BD5", "#00E87A", "#A855F7", "#FF6B35", "#00D4FF"] as const;
 
 export default function Home() {
+  const Scene3D = dynamic(() => import("@/components/Scene3D"), { ssr: false });
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
   const cursorRef = useRef<HTMLDivElement>(null);
